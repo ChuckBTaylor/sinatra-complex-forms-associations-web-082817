@@ -1,29 +1,45 @@
 class OwnersController < ApplicationController
+  set :views, "app/views/owners"
 
   get '/owners' do
     @owners = Owner.all
-    erb :'/owners/index' 
+    erb :index
   end
 
-  get '/owners/new' do 
-    erb :'/owners/new'
+  get '/owners/new' do
+    @pets = Pet.all
+    erb :new
   end
 
-  post '/owners' do 
-    
+  post '/owners' do
+    @owner = Owner.create(params[:owner])
+    unless params[:pet][:name].empty?
+      @owner.pets << Pet.create(name: params[:pet][:name])
+    end
+    @owner.save
+    redirect to "owners/#{@owner.id}"
   end
 
-  get '/owners/:id/edit' do 
+  get '/owners/:id/edit' do
     @owner = Owner.find(params[:id])
-    erb :'/owners/edit'
+    erb :edit
   end
 
-  get '/owners/:id' do 
+  patch '/owners/:id' do
     @owner = Owner.find(params[:id])
-    erb :'/owners/show'
+    # binding.pry
+    @owner.update(params[:owner])
+    unless params[:pet][:name].empty?
+      @owner.pets << Pet.create(name: params[:pet][:name])
+    end
+    redirect to "owners/#{@owner.id}"
   end
 
-  post '/owners/:id' do 
-   
+  get '/owners/:id' do
+    @owner = Owner.find(params[:id])
+    erb :show
   end
+
+
+
 end
